@@ -7,19 +7,19 @@ import json
 
 def get_dog_picture (breed):
 
-    url = f'https://dog.ceo/api/breed/{breed}/list'
 # Getting a list of sub_breed
+    url = f'https://dog.ceo/api/breed/{breed}/list'
     response = requests.get(url)
     list_sub_breeds = response.json()['message']
     list_dog_picture = []
     if len(list_sub_breeds) > 0:
-# Getting pictures of sub_breed
+# If there are any sub_breeds
         for sub_breed in list_sub_breeds:
             url = f'https://dog.ceo/api/breed/{breed}/{sub_breed}/images/random'
             response = requests.get(url)
             list_dog_picture.append(response.json()["message"])
     else:
-# Getting pictures of sub_breed
+# If there is no sub_breeds
         url = f'https://dog.ceo/api/breed/{breed}/images'
         response = requests.get(url)
         list_dog_picture.extend(response.json()["message"])
@@ -61,7 +61,11 @@ def save_picture(breed, token):
 
 
 if __name__ == '__main__':
-    token = ""
+
+    breed = input("Введите пароду собак (на английском языке) ").lower()
+    file_token = input("Введите имя файла содержащего токен ")
+    with open("token.txt", encoding="utf-8") as f:
+        token = f.read()
 
     save_picture("akita",  token)
 
