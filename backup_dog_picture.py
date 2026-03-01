@@ -4,41 +4,43 @@ import time
 from shlex import split
 from tqdm import tqdm
 
-def get_dog_picture (breed):
-# Getting a list of sub_breed.
+
+def get_dog_picture(breed):
+    # Getting a list of sub_breed.
     url = f'https://dog.ceo/api/breed/{breed}/list'
     response = requests.get(url)
     list_sub_breeds = response.json()['message']
     list_dog_picture = []
     if len(list_sub_breeds) > 0:
-# If there are any sub_breeds.
+        # If there are any sub_breeds.
         for sub_breed in list_sub_breeds:
             url = f'https://dog.ceo/api/breed/{breed}/{sub_breed}/images/random'
             response = requests.get(url)
             list_dog_picture.append(response.json()["message"])
     else:
-# If there is no sub_breeds.
+        # If there is no sub_breeds.
         url = f'https://dog.ceo/api/breed/{breed}/images'
         response = requests.get(url)
         list_dog_picture.extend(response.json()["message"])
     return list_dog_picture
 
+
 def save_picture(breed, token):
     result = {}
     result.setdefault("breed", breed)
-# Getting a list of pictures.
+    # Getting a list of pictures.
     pictures = get_dog_picture(breed)
-# We are forming a header for authorization
+    # We are forming a header for authorization
     headers = {'Authorization': token}
     url_base = "https://cloud-api.yandex.net"
     url_make_folder = "/v1/disk/resources"
     url_path_upload = "/v1/disk/resources/upload"
-# Create a folder.
+    # Create a folder.
     params = {
         "path": breed
     }
     response = requests.put(url_base + url_make_folder, params=params, headers=headers)
-# Let's upload files.
+    # Let's upload files.
     list_picture_name = []
     for picture in tqdm(pictures):
         filename = picture.split("/")[-1]
@@ -50,19 +52,16 @@ def save_picture(breed, token):
         list_picture_name.append(f'{breed}/{breed}_{filename}')
         time.sleep(0.1)
     result.setdefault("pictures", list_picture_name)
-# We write the results to a file.
+    # We write the results to a file.
     with open("result.txt", "w", encoding="utf-8") as f:
         f.write(json.dumps(result))
     return
 
 
 if __name__ == '__main__':
-
     breed = input("Введите пароду собак (на английском языке) ").lower()
     file_token = input("Введите имя файла содержащего токен ")
     with open("token.txt", encoding="utf-8") as f:
         token = f.read()
 
-    save_picture("akita",  token)
-
-
+    save_picture("akita", token)
